@@ -1,0 +1,150 @@
+.riders-page {
+  width: 100%;
+}
+
+.riders-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 24px;
+  margin-bottom: 24px;
+}
+
+.riders-header h1 {
+  margin: 0;
+  font-size: 28px;
+}
+
+.riders-header p {
+  margin: 6px 0 0;
+  color: #6b7280;
+}
+
+.riders-count {
+  padding: 8px 12px;
+  border-radius: 8px;
+  background: #f3f4f6;
+  color: #374151;
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.riders-table-card {
+  overflow: hidden;
+  border: 1px solid #e5e7eb;
+  border-radius: 12px;
+  background: #ffffff;
+}
+
+.riders-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.riders-table th,
+.riders-table td {
+  padding: 16px 20px;
+  text-align: left;
+  border-bottom: 1px solid #e5e7eb;
+}
+
+.riders-table th {
+  background: #f9fafb;
+  color: #6b7280;
+  font-size: 13px;
+  font-weight: 600;
+  text-transform: uppercase;
+}
+
+.riders-table td {
+  color: #374151;
+  font-size: 14px;
+}
+
+.riders-table tbody tr:last-child td {
+  border-bottom: none;
+}
+
+.rider-status {
+  display: inline-flex;
+  padding: 5px 9px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 600;
+  text-transform: capitalize;
+}
+
+.rider-status-active {
+  background: #dcfce7;
+  color: #166534;
+}
+
+.rider-status-pending {
+  background: #fef3c7;
+  color: #92400e;
+}
+
+.rider-status-suspended {
+  background: #fee2e2;
+  color: #991b1b;
+}
+
+.riders-state {
+  padding: 40px;
+  border: 1px solid #e5e7eb;
+  border-radius: 12px;
+  background: #ffffff;
+  text-align: center;
+  color: #6b7280;
+}
+
+.riders-error {
+  color: #b91c1c;
+}
+
+.riders-empty {
+  padding: 40px !important;
+  text-align: center !important;
+  color: #6b7280 !important;
+}
+
+.rider-name-link {
+  color: #111827;
+  text-decoration: none;
+  font-weight: 600;
+}
+
+.rider-name-link:hover {
+  text-decoration: underline;
+}
+
+.riders-header-actions {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.invite-rider-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 10px 16px;
+  border-radius: 10px;
+  background: #2e7d32;
+  color: #ffffff;
+  font-size: 14px;
+  font-weight: 600;
+  text-decoration: none;
+  transition:
+    background-color 0.2s ease,
+    transform 0.2s ease;
+}
+
+.invite-rider-button:hover {
+  background: #256628;
+  transform: translateY(-1px);
+}
+
+.invite-rider-button:active {
+  transform: translateY(0);
+}

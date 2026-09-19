@@ -1,0 +1,149 @@
+.pickup-details-page {
+  width: 100%;
+}
+
+.pickup-details-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 24px;
+  margin-bottom: 28px;
+}
+
+.pickup-details-header h1 {
+  margin: 12px 0 6px;
+  font-size: 28px;
+}
+
+.pickup-details-header p {
+  margin: 0;
+  color: #6b7280;
+}
+
+.pickup-details-back {
+  color: #2563eb;
+  font-size: 14px;
+  text-decoration: none;
+}
+
+.pickup-details-back:hover {
+  text-decoration: underline;
+}
+
+.pickup-details-grid {
+  display: grid;
+  grid-template-columns: repeat(
+    2,
+    minmax(0, 1fr)
+  );
+  gap: 20px;
+}
+
+.pickup-details-card {
+  padding: 20px;
+  background: #ffffff;
+  border: 1px solid #e5e7eb;
+  border-radius: 12px;
+}
+
+.pickup-details-card-full {
+  grid-column: 1 / -1;
+}
+
+.pickup-details-card h2 {
+  margin: 0 0 18px;
+  font-size: 17px;
+}
+
+.pickup-detail-row {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 20px;
+  padding: 11px 0;
+  border-bottom: 1px solid #f3f4f6;
+}
+
+.pickup-detail-row:last-child {
+  border-bottom: none;
+}
+
+.pickup-detail-row span {
+  color: #6b7280;
+  font-size: 14px;
+}
+
+.pickup-detail-row strong {
+  font-size: 14px;
+  text-align: right;
+  word-break: break-word;
+}
+
+.pickup-notes {
+  margin: 0;
+  color: #374151;
+  line-height: 1.6;
+}
+
+.pickup-details-state {
+  padding: 40px;
+  text-align: center;
+  color: #6b7280;
+  background: #ffffff;
+  border: 1px solid #e5e7eb;
+  border-radius: 12px;
+}
+
+.pickup-status {
+  display: inline-flex;
+  align-items: center;
+  padding: 6px 10px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 600;
+  text-transform: capitalize;
+}
+
+.pickup-status-pending {
+  background: #fef3c7;
+  color: #92400e;
+}
+
+.pickup-status-assigned {
+  background: #dbeafe;
+  color: #1e40af;
+}
+
+.pickup-status-accepted {
+  background: #e0e7ff;
+  color: #3730a3;
+}
+
+.pickup-status-in_progress {
+  background: #ede9fe;
+  color: #6b21a8;
+}
+
+.pickup-status-completed {
+  background: #dcfce7;
+  color: #166534;
+}
+
+.pickup-status-cancelled {
+  background: #fee2e2;
+  color: #991b1b;
+}
+
+@media (max-width: 800px) {
+  .pickup-details-header {
+    flex-direction: column;
+  }
+
+  .pickup-details-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .pickup-details-card-full {
+    grid-column: auto;
+  }
+}

@@ -1,0 +1,146 @@
+.customers-page {
+  width: 100%;
+}
+
+.customers-header {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 20px;
+  margin-bottom: 24px;
+}
+
+.customers-header h1 {
+  margin: 0;
+  font-size: 28px;
+}
+
+.customers-header p {
+  margin: 6px 0 0;
+  color: #6b7280;
+}
+
+.customers-count {
+  color: #6b7280;
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.customers-table-card {
+  overflow: hidden;
+  border: 1px solid #e5e7eb;
+  border-radius: 12px;
+  background: #ffffff;
+}
+
+.customers-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.customers-table th,
+.customers-table td {
+  padding: 16px 20px;
+  border-bottom: 1px solid #f3f4f6;
+  text-align: left;
+}
+
+.customers-table th {
+  background: #f9fafb;
+  color: #6b7280;
+  font-size: 12px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+}
+
+.customers-table td {
+  color: #374151;
+  font-size: 14px;
+}
+
+.customers-table tbody tr:last-child td {
+  border-bottom: none;
+}
+
+.customer-name-link {
+  color: #111827;
+  text-decoration: none;
+  font-weight: 600;
+}
+
+.customer-name-link:hover {
+  text-decoration: underline;
+}
+
+.customer-id {
+  color: #6b7280;
+  font-family: monospace;
+  font-size: 12px;
+  overflow-wrap: anywhere;
+}
+
+.customer-status {
+  display: inline-flex;
+  padding: 5px 9px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 600;
+  text-transform: capitalize;
+}
+
+.customer-status-active {
+  background: #dcfce7;
+  color: #166534;
+}
+
+.customer-status-inactive {
+  background: #f3f4f6;
+  color: #6b7280;
+}
+
+.customer-status-suspended {
+  background: #fee2e2;
+  color: #991b1b;
+}
+
+.customer-status-pending {
+  background: #fef3c7;
+  color: #92400e;
+}
+
+.customers-state {
+  padding: 40px;
+  border: 1px solid #e5e7eb;
+  border-radius: 12px;
+  background: #ffffff;
+  color: #6b7280;
+  text-align: center;
+}
+
+.customers-error {
+  color: #b91c1c;
+}
+
+.customers-empty {
+  padding: 48px 20px !important;
+  color: #6b7280 !important;
+  text-align: center !important;
+}
+
+@media (max-width: 900px) {
+  .customers-table-card {
+    overflow-x: auto;
+  }
+
+  .customers-table {
+    min-width: 760px;
+  }
+}
+
+@media (max-width: 600px) {
+  .customers-header {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+}
