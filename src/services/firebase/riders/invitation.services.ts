@@ -1,5 +1,4 @@
 import {
-  connectFunctionsEmulator,
   getFunctions,
   httpsCallable,
 } from 'firebase/functions';
@@ -30,15 +29,10 @@ export interface CreateRiderAccountResult {
   phoneNumber: string;
 }
 
-const functions = getFunctions(app);
-
-if (import.meta.env.DEV) {
-  connectFunctionsEmulator(
-    functions,
-    '127.0.0.1',
-    5001,
-  );
-}
+const functions = getFunctions(
+  app,
+  'us-central1',
+);
 
 const createRiderInvitationFunction =
   httpsCallable<

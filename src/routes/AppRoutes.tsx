@@ -24,6 +24,9 @@ import PickupDetails from '../pages/PickupDetails/PickupDetails';
 
 import WasteTypes from '../pages/WasteTypes/WasteTypes';
 
+import Staff from '../pages/Staff/Staff';
+import StaffDetails from '../pages/Staff/StaffDetails';
+
 function AppRoutes() {
   return (
     <Routes>
@@ -34,6 +37,8 @@ function AppRoutes() {
       <Route element={<AdminRoute />}>
         <Route element={<AdminLayout />}>
           <Route path="/dashboard" element={<Dashboard />} />
+          <Route path="/staff" element={<Staff />} />
+          <Route path="/staff/:userId" element={<StaffDetails />} />
           <Route path="/customers" element={<Customers />} />
           <Route path="/customers/:customerId" element={<CustomerDetails />} />
           <Route path="/riders" element={<Riders />} />

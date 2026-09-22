@@ -16,20 +16,28 @@ service cloud.firestore {
     // =========================
     // USERS
     // =========================
-
     match /users/{userId} {
 
+      // Admins can read all users.
+      // A signed-in user can read only their own user document.
+      allow read: if isAdmin()
+                || (
+                  isSignedIn()
+                  && request.auth.uid == userId
+                );
+
+      // Customers create their own user document.
+      //
+      // The client cannot create an arbitrary role.
+      // The document must belong to the authenticated user.
       allow create: if isSignedIn()
                     && request.auth.uid == userId
-                    && request.resource.data.role == 'pending'
-                    && request.resource.data.status == 'pending';
+                    && request.resource.data.role == 'customer'
+                    && request.resource.data.status == 'active';
 
-      allow read: if isAdmin()
-                  || (
-                    isSignedIn()
-                    && request.auth.uid == userId
-                  );
-
+      // Admins can update any user.
+      //
+      // Users themselves are NOT allowed to modify their role/status.
       allow update: if isAdmin();
 
       allow delete: if isAdmin();
@@ -39,23 +47,55 @@ service cloud.firestore {
     // =========================
     // CUSTOMERS
     // =========================
-
     match /customers/{customerId} {
 
+      // Admins can read all customers.
+      // Customer can read their own profile.
       allow read: if isAdmin()
                   || (
                     isSignedIn()
                     && request.auth.uid == customerId
                   );
 
-      allow create: if isAdmin();
+      // Customer can create only their own customer profile.
+      allow create: if isAdmin()
+                    || (
+                      isSignedIn()
+                      && request.auth.uid == customerId
+                    );
 
-      allow update: if isAdmin();
+      // Customer can update only their own profile.
+      allow update: if isAdmin()
+                    || (
+                      isSignedIn()
+                      && request.auth.uid == customerId
+                      && request.resource.data.diff(resource.data)
+                        .affectedKeys()
+                        .hasOnly([
+                          'fullName',
+                          'phoneNumber',
+                          'phoneCountryCode',
+                          'onboardingCompleted',
+                          'updatedAt'
+                        ])
+                      && request.resource.data.phoneVerified
+                        == resource.data.phoneVerified
+                      && (
+                        resource.data.phoneVerified == false
+                        || !request.resource.data.diff(resource.data)
+                          .affectedKeys()
+                          .hasAny([
+                            'phoneNumber',
+                            'phoneCountryCode'
+                          ])
+                      )
+                    );
 
       allow delete: if isAdmin();
 
-
-      // Customer addresses
+      // =========================
+      // CUSTOMER ADDRESSES
+      // =========================
       match /addresses/{addressId} {
 
         allow read: if isAdmin()
@@ -84,6 +124,19 @@ service cloud.firestore {
       }
     }
 
+    // =========================
+    // PHONE NUMBERS
+    // =========================
+
+    match /phoneNumbers/{phoneNumber} {
+
+      // Admins can inspect the phone index.
+      allow read: if isAdmin();
+
+      // Clients must NEVER directly create,
+      // modify, or delete phone claims.
+      allow create, update, delete: if false;
+    }
 
     // =========================
     // RIDERS

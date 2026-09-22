@@ -71,3 +71,43 @@
   color: #1b5e20;
   font-weight: 600;
 }
+
+.admin-sidebar-footer {
+  margin-top: auto;
+  padding: 20px;
+  border-top: 1px solid #e5e7eb;
+}
+
+.admin-user {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  margin-bottom: 12px;
+}
+
+.admin-user strong {
+  font-size: 14px;
+  color: #111827;
+}
+
+.admin-user span {
+  font-size: 12px;
+  color: #6b7280;
+  word-break: break-word;
+}
+
+.admin-logout-button {
+  width: 100%;
+  padding: 10px 14px;
+  border: 1px solid #d1d5db;
+  border-radius: 8px;
+  background: #ffffff;
+  color: #374151;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.admin-logout-button:hover {
+  background: #f3f4f6;
+}

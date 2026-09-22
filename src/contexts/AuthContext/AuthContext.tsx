@@ -13,6 +13,7 @@ import { auth } from '../../services/firebase/auth';
 interface AuthContextValue {
   user: User | null;
   isAdmin: boolean;
+  isSuperAdmin: boolean;
   loading: boolean;
 }
 
@@ -27,6 +28,7 @@ interface AuthProviderProps {
 export function AuthProvider({ children }: AuthProviderProps) {
   const [user, setUser] = useState<User | null>(null);
   const [isAdmin, setIsAdmin] = useState(false);
+  const [isSuperAdmin, setIsSuperAdmin] = useState(false);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -36,6 +38,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
       if (!currentUser) {
         setUser(null);
         setIsAdmin(false);
+        setIsSuperAdmin(false);
         setLoading(false);
         return;
       }
@@ -45,11 +48,13 @@ export function AuthProvider({ children }: AuthProviderProps) {
 
         setUser(currentUser);
         setIsAdmin(tokenResult.claims.admin === true);
+        setIsSuperAdmin(tokenResult.claims.superAdmin === true);
       } catch (error) {
         console.error('Failed to check admin status:', error);
 
         setUser(currentUser);
         setIsAdmin(false);
+        setIsSuperAdmin(false);
       } finally {
         setLoading(false);
       }
@@ -63,6 +68,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
       value={{
         user,
         isAdmin,
+        isSuperAdmin,
         loading,
       }}
     >
