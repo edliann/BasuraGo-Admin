@@ -128,6 +128,50 @@
   text-align: center !important;
 }
 
+.customers-toolbar {
+  display: flex;
+  gap: 12px;
+  margin-bottom: 20px;
+}
+
+.customers-search,
+.customers-status-filter {
+  box-sizing: border-box;
+  padding: 10px 12px;
+  border: 1px solid #d1d5db;
+  border-radius: 8px;
+  background: #ffffff;
+  color: #111827;
+  font: inherit;
+  font-size: 14px;
+}
+
+.customers-search {
+  flex: 1;
+  min-width: 220px;
+}
+
+.customers-status-filter {
+  min-width: 160px;
+}
+
+.customers-search:focus,
+.customers-status-filter:focus {
+  border-color: #6b7280;
+  outline: none;
+}
+
+@media (max-width: 600px) {
+  .customers-toolbar {
+    flex-direction: column;
+  }
+
+  .customers-search,
+  .customers-status-filter {
+    width: 100%;
+  }
+}
+
 @media (max-width: 900px) {
   .customers-table-card {
     overflow-x: auto;

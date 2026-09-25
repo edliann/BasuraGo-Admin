@@ -1,17 +1,28 @@
 import {
   useEffect,
+  useMemo,
   useState,
-} from 'react';
+} from "react";
 
 import {
   Link,
-} from 'react-router-dom';
+} from "react-router-dom";
 
-import { getCustomers } from '../../services/firebase/customers/customers.services';
+import {
+  getCustomers,
+} from "../../services/firebase/customers/customers.services";
 
-import type { Customer } from '../../services/firebase/customers/customers.types';
+import type {
+  Customer,
+} from "../../services/firebase/customers/customers.types";
 
-import './Customers.css';
+import "./Customers.css";
+
+type StatusFilter =
+  | "all"
+  | "active"
+  | "inactive"
+  | "suspended";
 
 function Customers() {
   const [customers, setCustomers] =
@@ -21,34 +32,75 @@ function Customers() {
     useState(true);
 
   const [error, setError] =
-    useState('');
+    useState("");
 
-  async function loadCustomers() {
-    try {
-      setLoading(true);
-      setError('');
+  const [search, setSearch] =
+    useState("");
 
-      const customerList =
-        await getCustomers();
-
-      setCustomers(customerList);
-    } catch (error) {
-      console.error(
-        'Failed to load customers:',
-        error,
-      );
-
-      setError(
-        'Failed to load customers. Please try again.',
-      );
-    } finally {
-      setLoading(false);
-    }
-  }
+  const [statusFilter, setStatusFilter] =
+    useState<StatusFilter>("all");
 
   useEffect(() => {
-    loadCustomers();
+    async function loadCustomers() {
+      try {
+        setLoading(true);
+        setError("");
+
+        const customerList =
+          await getCustomers();
+
+        setCustomers(customerList);
+      } catch (err) {
+        console.error(
+          "Failed to load customers:",
+          err,
+        );
+
+        setError(
+          "Failed to load customers. Please try again.",
+        );
+      } finally {
+        setLoading(false);
+      }
+    }
+
+    void loadCustomers();
   }, []);
+
+  const filteredCustomers = useMemo(() => {
+    const normalizedSearch =
+      search.trim().toLowerCase();
+
+    return customers.filter((customer) => {
+      const matchesSearch =
+        !normalizedSearch ||
+        customer.fullName
+          .toLowerCase()
+          .includes(normalizedSearch) ||
+        customer.email
+          .toLowerCase()
+          .includes(normalizedSearch) ||
+        customer.phoneNumber
+          .toLowerCase()
+          .includes(normalizedSearch) ||
+        customer.id
+          .toLowerCase()
+          .includes(normalizedSearch);
+
+      const matchesStatus =
+        statusFilter === "all" ||
+        customer.status === statusFilter;
+
+      return (
+        matchesSearch &&
+        matchesStatus
+      );
+    });
+  }, [
+    customers,
+    search,
+    statusFilter,
+  ]);
 
   if (loading) {
     return (
@@ -93,43 +145,80 @@ function Customers() {
       <div className="customers-header">
         <div>
           <h1>Customers</h1>
-
           <p>
             Manage BasuraGo customers.
           </p>
         </div>
 
         <span className="customers-count">
+          {filteredCustomers.length} of{" "}
           {customers.length} customer
           {customers.length !== 1
-            ? 's'
-            : ''}
+            ? "s"
+            : ""}
         </span>
+      </div>
+
+      <div className="customers-toolbar">
+        <input
+          type="search"
+          value={search}
+          onChange={(event) =>
+            setSearch(event.target.value)
+          }
+          placeholder="Search name, email, phone, or ID..."
+          className="customers-search"
+        />
+
+        <select
+          value={statusFilter}
+          onChange={(event) =>
+            setStatusFilter(
+              event.target
+                .value as StatusFilter,
+            )
+          }
+          className="customers-status-filter"
+        >
+          <option value="all">
+            All statuses
+          </option>
+          <option value="active">
+            Active
+          </option>
+          <option value="inactive">
+            Inactive
+          </option>
+          <option value="suspended">
+            Suspended
+          </option>
+        </select>
       </div>
 
       <div className="customers-table-card">
         <table className="customers-table">
           <thead>
             <tr>
-              <th>Customer Name</th>
-              <th>Phone Number</th>
+              <th>Customer</th>
+              <th>Email</th>
+              <th>Phone</th>
+              <th>Phone Verified</th>
               <th>Status</th>
-              <th>Customer ID</th>
             </tr>
           </thead>
 
           <tbody>
-            {customers.length === 0 ? (
+            {filteredCustomers.length === 0 ? (
               <tr>
                 <td
-                  colSpan={4}
+                  colSpan={5}
                   className="customers-empty"
                 >
-                  No customers found.
+                  No customers match your search.
                 </td>
               </tr>
             ) : (
-              customers.map(
+              filteredCustomers.map(
                 (customer) => (
                   <tr
                     key={customer.id}
@@ -140,13 +229,23 @@ function Customers() {
                         className="customer-name-link"
                       >
                         {customer.fullName ||
-                          'Unnamed Customer'}
+                          "Unnamed Customer"}
                       </Link>
                     </td>
 
                     <td>
+                      {customer.email || "—"}
+                    </td>
+
+                    <td>
                       {customer.phoneNumber ||
-                        '—'}
+                        "—"}
+                    </td>
+
+                    <td>
+                      {customer.phoneVerified
+                        ? "Verified"
+                        : "Not verified"}
                     </td>
 
                     <td>
@@ -154,12 +253,6 @@ function Customers() {
                         className={`customer-status customer-status-${customer.status}`}
                       >
                         {customer.status}
-                      </span>
-                    </td>
-
-                    <td>
-                      <span className="customer-id">
-                        {customer.id}
                       </span>
                     </td>
                   </tr>

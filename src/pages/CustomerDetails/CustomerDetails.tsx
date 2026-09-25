@@ -17,12 +17,22 @@ import {
   setDefaultCustomerAddress,
   updateCustomer,
   updateCustomerAddress,
+  updateCustomerStatus,
 } from '../../services/firebase/customers/customers.services';
 
-import type { 
+import type {
   Customer,
-  CustomerAddress
-} from '../../services/firebase/customers/customers.types';
+  CustomerAddress,
+  CustomerStatus,
+} from "../../services/firebase/customers/customers.types";
+
+import {
+  getCustomerPickups,
+} from "../../services/firebase/customers/customer-pickups.services";
+
+import type {
+  Pickup,
+} from "../../services/firebase/pickups/pickup.types";
 
 import './CustomerDetails.css';
 
@@ -36,8 +46,6 @@ interface AddressFormState {
 
 interface CustomerFormState {
   fullName: string;
-  phoneNumber: string;
-  status: string;
 }
 
 const emptyAddressForm: AddressFormState = {
@@ -50,8 +58,6 @@ const emptyAddressForm: AddressFormState = {
 
 const emptyCustomerForm: CustomerFormState = {
   fullName: '',
-  phoneNumber: '',
-  status: 'active',
 };
 
 function CustomerDetails() {
@@ -103,15 +109,19 @@ function CustomerDetails() {
   const [customerFormError, setCustomerFormError] =
     useState('');  
 
+  const [pickups, setPickups] =
+    useState<Pickup[]>([]);
+
+  const [updatingStatus, setUpdatingStatus] =
+    useState(false);
+
   function openCustomerForm() {
     if (!customer) {
         return;
     }
 
     setCustomerForm({
-        fullName: customer.fullName,
-        phoneNumber: customer.phoneNumber,
-        status: customer.status,
+      fullName: customer.fullName,
     });
 
       setCustomerFormError('');
@@ -130,98 +140,119 @@ function CustomerDetails() {
     );
   }   
   
-    async function handleSaveCustomer(
+  async function handleSaveCustomer(
     event: FormEvent<HTMLFormElement>,
-    ) {
+  ) {
     event.preventDefault();
 
     if (!customerId || !customer) {
-        return;
+      return;
     }
 
     setCustomerFormError('');
 
     const fullName =
-        customerForm.fullName.trim();
-
-    const phoneNumber =
-        customerForm.phoneNumber.trim();
-
-    const status =
-        customerForm.status;
+      customerForm.fullName.trim();
 
     if (!fullName) {
-        setCustomerFormError(
+      setCustomerFormError(
         'Customer name is required.',
-        );
-        return;
-    }
-
-    if (!phoneNumber) {
-        setCustomerFormError(
-        'Phone number is required.',
-        );
-        return;
-    }
-
-    if (
-        ![
-        'active',
-        'inactive',
-        'suspended',
-        ].includes(status)
-    ) {
-        setCustomerFormError(
-        'Invalid customer status.',
-        );
-        return;
+      );
+      return;
     }
 
     try {
-        setSavingCustomer(true);
+      setSavingCustomer(true);
 
-        await updateCustomer(
+      await updateCustomer(
         customerId,
         fullName,
-        phoneNumber,
-        status,
-        );
+      );
 
-        const updatedCustomer =
+      const updatedCustomer =
         await getCustomer(
-            customerId,
+          customerId,
         );
 
-        if (updatedCustomer) {
+      if (updatedCustomer) {
         setCustomer(updatedCustomer);
-        }
+      }
 
-        setShowCustomerForm(false);
-        setCustomerFormError('');
-        setCustomerForm(
+      setShowCustomerForm(false);
+      setCustomerFormError('');
+      setCustomerForm(
         emptyCustomerForm,
-        );
+      );
     } catch (error) {
-        console.error(
+      console.error(
         'Failed to update customer:',
         error,
+      );
+
+      if (error instanceof Error) {
+        setCustomerFormError(
+          error.message,
+        );
+      } else {
+        setCustomerFormError(
+          'Failed to update customer. Please try again.',
+        );
+      }
+    } finally {
+      setSavingCustomer(false);
+    }
+  }
+
+  async function handleCustomerStatusChange(
+      status: CustomerStatus,
+    ) {
+      if (!customer) {
+        return;
+      }
+
+      const action =
+        status === "active"
+          ? "reactivate"
+          : status === "suspended"
+            ? "suspend"
+            : "deactivate";
+
+      const confirmed = window.confirm(
+        `Are you sure you want to ${action} ${customer.fullName}?`,
+      );
+
+      if (!confirmed) {
+        return;
+      }
+
+      try {
+        setUpdatingStatus(true);
+        setError("");
+
+        await updateCustomerStatus(
+          customer.id,
+          status,
         );
 
-        if (
-        error instanceof Error
-        ) {
-        setCustomerFormError(
-            error.message,
+        setCustomer({
+          ...customer,
+          status,
+        });
+      } catch (err) {
+        console.error(
+          "Failed to update customer status:",
+          err,
         );
-        } else {
-        setCustomerFormError(
-            'Failed to update customer. Please try again.',
+
+        setError(
+          err instanceof Error
+            ? err.message
+            : "Failed to update customer status.",
         );
-        }
-    } finally {
-        setSavingCustomer(false);
+      } finally {
+        setUpdatingStatus(false);
+      }
     }
-    }  
 
   async function loadCustomer() {
     if (!customerId) {
@@ -236,15 +267,15 @@ function CustomerDetails() {
       setLoading(true);
       setError('');
 
-      const [
-        customerData,
-        addressList,
-      ] = await Promise.all([
-        getCustomer(customerId),
-        getCustomerAddresses(
-          customerId,
-        ),
-      ]);
+    const [
+      customerData,
+      addressList,
+      pickupList,
+    ] = await Promise.all([
+      getCustomer(customerId),
+      getCustomerAddresses(customerId),
+      getCustomerPickups(customerId),
+    ]);
 
       if (!customerData) {
         setError(
@@ -257,6 +288,7 @@ function CustomerDetails() {
 
       setCustomer(customerData);
       setAddresses(addressList);
+      setPickups(pickupList);
     } catch (error) {
       console.error(
         'Failed to load customer:',
@@ -658,75 +690,7 @@ function CustomerDetails() {
                 />
             </div>
 
-            <div className="customer-form-field">
-                <label htmlFor="customerPhoneNumber">
-                Phone Number
-                </label>
 
-                <input
-                id="customerPhoneNumber"
-                type="tel"
-                value={
-                    customerForm.phoneNumber
-                }
-                onChange={(
-                    event,
-                ) =>
-                    setCustomerForm(
-                    (current) => ({
-                        ...current,
-                        phoneNumber:
-                        event.target
-                            .value,
-                    }),
-                    )
-                }
-                placeholder="09XXXXXXXXX"
-                disabled={
-                    savingCustomer
-                }
-                />
-            </div>
-
-            <div className="customer-form-field">
-                <label htmlFor="customerStatus">
-                Status
-                </label>
-
-                <select
-                id="customerStatus"
-                value={
-                    customerForm.status
-                }
-                onChange={(
-                    event,
-                ) =>
-                    setCustomerForm(
-                    (current) => ({
-                        ...current,
-                        status:
-                        event.target
-                            .value,
-                    }),
-                    )
-                }
-                disabled={
-                    savingCustomer
-                }
-                >
-                <option value="active">
-                    Active
-                </option>
-
-                <option value="inactive">
-                    Inactive
-                </option>
-
-                <option value="suspended">
-                    Suspended
-                </option>
-                </select>
-            </div>
 
             {customerFormError && (
                 <div className="customer-form-error">
@@ -783,6 +747,34 @@ function CustomerDetails() {
           </div>
 
           <div className="customer-detail-row">
+            <span>Email</span>
+
+            <strong>
+              {customer.email || '—'}
+            </strong>
+          </div>
+
+          <div className="customer-detail-row">
+            <span>Phone Verification</span>
+
+            <strong>
+              {customer.phoneVerified
+                ? 'Verified'
+                : 'Not verified'}
+            </strong>
+          </div>
+
+          <div className="customer-detail-row">
+            <span>Onboarding</span>
+
+            <strong>
+              {customer.onboardingCompleted
+                ? 'Completed'
+                : 'Incomplete'}
+            </strong>
+          </div>
+
+          <div className="customer-detail-row">
             <span>Status</span>
 
             <span
@@ -798,6 +790,63 @@ function CustomerDetails() {
             <strong className="customer-id">
               {customer.id}
             </strong>
+          </div>
+        </div>
+
+        <div className="customer-status-actions">
+          <h3>Account Status</h3>
+
+          <p>
+            Changing the account status also controls
+            whether the customer can authenticate.
+          </p>
+
+          <div className="customer-status-buttons">
+            {customer.status === 'active' && (
+              <>
+                <button
+                  type="button"
+                  onClick={() =>
+                    void handleCustomerStatusChange(
+                      'suspended',
+                    )
+                  }
+                  disabled={updatingStatus}
+                >
+                  {updatingStatus
+                    ? 'Updating...'
+                    : 'Suspend Customer'}
+                </button>
+
+                <button
+                  type="button"
+                  onClick={() =>
+                    void handleCustomerStatusChange(
+                      'inactive',
+                    )
+                  }
+                  disabled={updatingStatus}
+                >
+                  Deactivate Customer
+                </button>
+              </>
+            )}
+
+            {customer.status !== 'active' && (
+              <button
+                type="button"
+                onClick={() =>
+                  void handleCustomerStatusChange(
+                    'active',
+                  )
+                }
+                disabled={updatingStatus}
+              >
+                {updatingStatus
+                  ? 'Updating...'
+                  : 'Reactivate Customer'}
+              </button>
+            )}
           </div>
         </div>
 
@@ -1158,6 +1207,67 @@ function CustomerDetails() {
                   </div>
                 ),
               )}
+            </div>
+          )}
+        </div>
+
+        <div className="customer-details-card customer-pickups-card">
+          <div className="customer-address-title-row">
+            <div>
+              <h2>Pickup History</h2>
+
+              <span className="customer-address-count">
+                {pickups.length} pickup
+                {pickups.length !== 1
+                  ? 's'
+                  : ''}
+              </span>
+            </div>
+          </div>
+
+          {pickups.length === 0 ? (
+            <div className="customer-address-empty">
+              No pickup history found.
+            </div>
+          ) : (
+            <div className="customer-pickup-list">
+              {pickups.map((pickup) => (
+                <Link
+                  key={pickup.id}
+                  to={`/pickups/${pickup.id}`}
+                  className="customer-pickup-item"
+                >
+                  <div>
+                    <strong>
+                      {pickup.scheduledDate}
+                    </strong>
+
+                    <span>
+                      {pickup.scheduledTime}
+                    </span>
+                  </div>
+
+                  <div>
+                    <span>
+                      Estimated:{' '}
+                      {pickup.estimatedWeight} kg
+                    </span>
+
+                    {pickup.actualWeight !== null && (
+                      <span>
+                        Actual:{' '}
+                        {pickup.actualWeight} kg
+                      </span>
+                    )}
+                  </div>
+
+                  <span
+                    className={`customer-status customer-status-${pickup.status}`}
+                  >
+                    {pickup.status}
+                  </span>
+                </Link>
+              ))}
             </div>
           )}
         </div>

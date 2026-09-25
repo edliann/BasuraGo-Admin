@@ -1,8 +1,18 @@
+export type CustomerStatus =
+  | "active"
+  | "inactive"
+  | "suspended";
+
 export interface Customer {
   id: string;
   fullName: string;
+  email: string;
   phoneNumber: string;
-  status: string;
+  phoneCountryCode: string;
+  phoneVerified: boolean;
+  onboardingCompleted: boolean;
+  status: CustomerStatus;
+  defaultAddressId?: string;
   createdAt: unknown;
   updatedAt: unknown;
 }

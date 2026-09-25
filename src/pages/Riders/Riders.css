@@ -20,6 +20,12 @@
   color: #6b7280;
 }
 
+.riders-header-actions {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
 .riders-count {
   padding: 8px 12px;
   border-radius: 8px;
@@ -29,6 +35,99 @@
   font-weight: 600;
 }
 
+.invite-rider-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 10px 16px;
+  border-radius: 10px;
+  background: #2e7d32;
+  color: #ffffff;
+  font-size: 14px;
+  font-weight: 600;
+  text-decoration: none;
+  transition:
+    background-color 0.2s ease,
+    transform 0.2s ease;
+}
+
+.invite-rider-button:hover {
+  background: #256628;
+  transform: translateY(-1px);
+}
+
+.invite-rider-button:active {
+  transform: translateY(0);
+}
+
+.riders-toolbar {
+  display: flex;
+  align-items: flex-end;
+  gap: 16px;
+  margin-bottom: 20px;
+  padding: 18px;
+  border: 1px solid #e5e7eb;
+  border-radius: 12px;
+  background: #ffffff;
+}
+
+.riders-search,
+.riders-filter {
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+}
+
+.riders-search {
+  flex: 1;
+}
+
+.riders-search label,
+.riders-filter label {
+  color: #374151;
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.riders-search input,
+.riders-filter select {
+  min-height: 42px;
+  padding: 0 12px;
+  border: 1px solid #d1d5db;
+  border-radius: 8px;
+  background: #ffffff;
+  color: #111827;
+  font: inherit;
+  outline: none;
+}
+
+.riders-search input {
+  width: 100%;
+}
+
+.riders-search input:focus,
+.riders-filter select:focus {
+  border-color: #2e7d32;
+  box-shadow: 0 0 0 3px rgba(46, 125, 50, 0.1);
+}
+
+.clear-riders-button {
+  min-height: 42px;
+  padding: 0 14px;
+  border: 1px solid #d1d5db;
+  border-radius: 8px;
+  background: #ffffff;
+  color: #374151;
+  font: inherit;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.clear-riders-button:hover {
+  background: #f9fafb;
+}
+
 .riders-table-card {
   overflow: hidden;
   border: 1px solid #e5e7eb;
@@ -36,8 +135,13 @@
   background: #ffffff;
 }
 
+.riders-table-wrapper {
+  overflow-x: auto;
+}
+
 .riders-table {
   width: 100%;
+  min-width: 760px;
   border-collapse: collapse;
 }
 
@@ -65,6 +169,45 @@
   border-bottom: none;
 }
 
+.riders-table tbody tr:hover {
+  background: #fafafa;
+}
+
+.rider-name-link {
+  display: block;
+  color: #111827;
+  text-decoration: none;
+  font-weight: 600;
+}
+
+.rider-name-link:hover {
+  color: #2e7d32;
+  text-decoration: underline;
+}
+
+.rider-id-preview {
+  display: block;
+  max-width: 220px;
+  margin-top: 4px;
+  overflow: hidden;
+  color: #9ca3af;
+  font-family: monospace;
+  font-size: 11px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.view-rider-link {
+  color: #2e7d32;
+  font-size: 13px;
+  font-weight: 600;
+  text-decoration: none;
+}
+
+.view-rider-link:hover {
+  text-decoration: underline;
+}
+
 .rider-status {
   display: inline-flex;
   padding: 5px 9px;
@@ -89,6 +232,11 @@
   color: #991b1b;
 }
 
+.rider-status-disabled {
+  background: #e5e7eb;
+  color: #374151;
+}
+
 .riders-state {
   padding: 40px;
   border: 1px solid #e5e7eb;
@@ -103,48 +251,28 @@
 }
 
 .riders-empty {
-  padding: 40px !important;
+  padding: 48px !important;
   text-align: center !important;
   color: #6b7280 !important;
 }
 
-.rider-name-link {
-  color: #111827;
-  text-decoration: none;
-  font-weight: 600;
-}
+@media (max-width: 768px) {
+  .riders-header {
+    flex-direction: column;
+  }
 
-.rider-name-link:hover {
-  text-decoration: underline;
-}
+  .riders-header-actions {
+    width: 100%;
+    justify-content: space-between;
+  }
 
-.riders-header-actions {
-  display: flex;
-  align-items: center;
-  gap: 16px;
-}
+  .riders-toolbar {
+    align-items: stretch;
+    flex-direction: column;
+  }
 
-.invite-rider-button {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  padding: 10px 16px;
-  border-radius: 10px;
-  background: #2e7d32;
-  color: #ffffff;
-  font-size: 14px;
-  font-weight: 600;
-  text-decoration: none;
-  transition:
-    background-color 0.2s ease,
-    transform 0.2s ease;
-}
-
-.invite-rider-button:hover {
-  background: #256628;
-  transform: translateY(-1px);
-}
-
-.invite-rider-button:active {
-  transform: translateY(0);
+  .riders-search,
+  .riders-filter {
+    width: 100%;
+  }
 }

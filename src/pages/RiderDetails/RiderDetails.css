@@ -25,15 +25,14 @@
 }
 
 .rider-details-back:hover {
+  color: #2e7d32;
   text-decoration: underline;
 }
 
 .rider-details-grid {
   display: grid;
-  grid-template-columns: repeat(
-    2,
-    minmax(0, 1fr)
-  );
+  grid-template-columns:
+    repeat(2, minmax(0, 1fr));
   gap: 20px;
   margin-bottom: 20px;
 }
@@ -68,7 +67,7 @@
   border-bottom: none;
 }
 
-.rider-detail-row span:first-child {
+.rider-detail-row > span:first-child {
   color: #6b7280;
   font-size: 14px;
 }
@@ -110,10 +109,9 @@
   color: #991b1b;
 }
 
-.location-placeholder-content p {
-  margin: 0;
-  color: #6b7280;
-  font-size: 14px;
+.rider-status-disabled {
+  background: #e5e7eb;
+  color: #374151;
 }
 
 .rider-details-state {
@@ -127,22 +125,6 @@
 
 .rider-details-error {
   color: #b91c1c;
-}
-
-@media (max-width: 768px) {
-  .rider-details-grid {
-    grid-template-columns: 1fr;
-  }
-
-  .rider-detail-row {
-    align-items: flex-start;
-    flex-direction: column;
-    gap: 6px;
-  }
-
-  .rider-detail-row strong {
-    text-align: left;
-  }
 }
 
 .location-status {
@@ -175,10 +157,15 @@
   background: #9ca3af;
 }
 
+.rider-location-card {
+  margin-bottom: 20px;
+}
+
 .rider-location-header {
   display: flex;
   align-items: flex-start;
   justify-content: space-between;
+  gap: 20px;
   margin-bottom: 16px;
 }
 
@@ -194,10 +181,8 @@
 
 .rider-coordinates {
   display: grid;
-  grid-template-columns: repeat(
-    2,
-    minmax(0, 1fr)
-  );
+  grid-template-columns:
+    repeat(3, minmax(0, 1fr));
   gap: 16px;
   margin-top: 16px;
   padding-top: 16px;
@@ -219,4 +204,49 @@
   color: #111827;
   font-size: 14px;
   font-family: monospace;
+}
+
+.rider-location-empty {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  margin-top: 16px;
+  padding: 20px;
+  border: 1px dashed #d1d5db;
+  border-radius: 10px;
+  text-align: center;
+}
+
+.rider-location-empty strong {
+  color: #374151;
+  font-size: 14px;
+}
+
+.rider-location-empty span {
+  color: #6b7280;
+  font-size: 13px;
+}
+
+@media (max-width: 768px) {
+  .rider-details-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .rider-detail-row {
+    align-items: flex-start;
+    flex-direction: column;
+    gap: 6px;
+  }
+
+  .rider-detail-row strong {
+    text-align: left;
+  }
+
+  .rider-location-header {
+    flex-direction: column;
+  }
+
+  .rider-coordinates {
+    grid-template-columns: 1fr;
+  }
 }

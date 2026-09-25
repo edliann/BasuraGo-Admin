@@ -12,11 +12,13 @@ import {
   subscribeToRiderLocation,
 } from '../../services/firebase/riders/riders-location.services';
 
-import { getRiders, } from '../../services/firebase/riders/riders.services';
+import {
+  getRider,
+} from '../../services/firebase/riders/riders.services';
 
-import type { 
-  Rider, 
-  RiderLocation 
+import type {
+  Rider,
+  RiderLocation,
 } from '../../services/firebase/riders/riders.types';
 
 import RiderMap from '../../components/RiderMap/RiderMap';
@@ -38,8 +40,6 @@ function RiderDetails() {
   const [error, setError] =
     useState('');
 
-  // Used to periodically recalculate
-  // the rider's online/offline status.
   const [currentTime, setCurrentTime] =
     useState(Date.now());
 
@@ -55,15 +55,12 @@ function RiderDetails() {
         setLoading(true);
         setError('');
 
-        const riders = await getRiders();
-
-        const foundRider = riders.find(
-          (item) => item.id === riderId,
-        );
+        const foundRider =
+          await getRider(riderId);
 
         if (!foundRider) {
-          setError('Rider not found.');
           setRider(null);
+          setError('Rider not found.');
           return;
         }
 
@@ -102,9 +99,10 @@ function RiderDetails() {
   }, [riderId]);
 
   useEffect(() => {
-    const interval = window.setInterval(() => {
-      setCurrentTime(Date.now());
-    }, 1000);
+    const interval =
+      window.setInterval(() => {
+        setCurrentTime(Date.now());
+      }, 1000);
 
     return () => {
       window.clearInterval(interval);
@@ -241,7 +239,9 @@ function RiderDetails() {
         </div>
 
         <div className="rider-details-card">
-          <h2>Rider Status</h2>
+          <h2>
+            Account Information
+          </h2>
 
           <div className="rider-detail-row">
             <span>
@@ -249,23 +249,12 @@ function RiderDetails() {
             </span>
 
             <span
-              className={`rider-status rider-status-${rider.status}`}
+              className={
+                `rider-status ` +
+                `rider-status-${rider.status}`
+              }
             >
               {rider.status}
-            </span>
-          </div>
-
-          <div className="rider-detail-row">
-            <span>
-              Location Status
-            </span>
-
-            <span
-              className={`location-status location-status-${locationStatus.className}`}
-            >
-              <span className="location-status-dot" />
-
-              {locationStatus.label}
             </span>
           </div>
 
@@ -279,10 +268,27 @@ function RiderDetails() {
                 'Unassigned'}
             </strong>
           </div>
+
+          <div className="rider-detail-row">
+            <span>
+              Location Status
+            </span>
+
+            <span
+              className={
+                `location-status ` +
+                `location-status-${locationStatus.className}`
+              }
+            >
+              <span className="location-status-dot" />
+
+              {locationStatus.label}
+            </span>
+          </div>
         </div>
       </div>
 
-      <div className="rider-details-card">
+      <div className="rider-details-card rider-location-card">
         <div className="rider-location-header">
           <div>
             <h2>
@@ -293,13 +299,24 @@ function RiderDetails() {
               {locationStatus.label}
             </p>
           </div>
+
+          <span
+            className={
+              `location-status ` +
+              `location-status-${locationStatus.className}`
+            }
+          >
+            <span className="location-status-dot" />
+
+            {locationStatus.label}
+          </span>
         </div>
 
         <RiderMap
           riderId={rider.id}
         />
 
-        {riderLocation && (
+        {riderLocation ? (
           <div className="rider-coordinates">
             <div>
               <span>
@@ -324,6 +341,40 @@ function RiderDetails() {
                 )}
               </strong>
             </div>
+
+            <div>
+              <span>
+                Last Updated
+              </span>
+
+              <strong>
+                {riderLocation.updatedAt &&
+                typeof (
+                  riderLocation.updatedAt as {
+                    toDate?: () => Date;
+                  }
+                ).toDate === 'function'
+                  ? (
+                      riderLocation.updatedAt as {
+                        toDate: () => Date;
+                      }
+                    )
+                      .toDate()
+                      .toLocaleString()
+                  : 'Unknown'}
+              </strong>
+            </div>
+          </div>
+        ) : (
+          <div className="rider-location-empty">
+            <strong>
+              No live location available
+            </strong>
+
+            <span>
+              This rider has not reported
+              a current location.
+            </span>
           </div>
         )}
       </div>

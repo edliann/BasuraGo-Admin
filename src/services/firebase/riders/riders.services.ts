@@ -1,72 +1,104 @@
 import {
   collection,
   doc,
-  getDocs,
   getDoc,
-  setDoc,
+  getDocs,
   getFirestore,
   serverTimestamp,
+  setDoc,
 } from 'firebase/firestore';
 
 import app from '../firebase';
-import type { Rider } from './riders.types';
+
+import type {
+  Rider,
+  RiderStatus,
+} from './riders.types';
 
 const db = getFirestore(app);
-
 
 export async function createRiderProfile(
   uid: string,
   fullName: string,
   phoneNumber: string,
 ) {
-  await setDoc(doc(db, 'riders', uid), {
-    fullName,
-    phoneNumber,
-    status: 'pending',
-    vehicleId: null,
-    createdAt: serverTimestamp(),
-    updatedAt: serverTimestamp(),
-  });
+  await setDoc(
+    doc(db, 'riders', uid),
+    {
+      fullName,
+      phoneNumber,
+      status: 'pending',
+      vehicleId: null,
+      createdAt: serverTimestamp(),
+      updatedAt: serverTimestamp(),
+    },
+  );
+}
+
+function mapRider(
+  riderId: string,
+  data: Record<string, unknown>,
+): Rider {
+  const rawStatus = data.status;
+
+  const status: RiderStatus =
+    rawStatus === 'active' ||
+    rawStatus === 'suspended' ||
+    rawStatus === 'disabled' ||
+    rawStatus === 'pending'
+      ? rawStatus
+      : 'pending';
+
+  return {
+    id: riderId,
+    fullName:
+      typeof data.fullName === 'string'
+        ? data.fullName
+        : '',
+    phoneNumber:
+      typeof data.phoneNumber === 'string'
+        ? data.phoneNumber
+        : '',
+    status,
+    vehicleId:
+      typeof data.vehicleId === 'string'
+        ? data.vehicleId
+        : null,
+    createdAt: data.createdAt,
+    updatedAt: data.updatedAt,
+  };
 }
 
 export async function getRiders(): Promise<Rider[]> {
-  const ridersRef = collection(db, 'riders');
+  const snapshot = await getDocs(
+    collection(db, 'riders'),
+  );
 
-  const snapshot = await getDocs(ridersRef);
-
-  return snapshot.docs.map((riderDoc) => {
-    const data = riderDoc.data();
-
-    return {
-      id: riderDoc.id,
-      fullName: data.fullName ?? '',
-      phoneNumber: data.phoneNumber ?? '',
-      status: data.status ?? 'pending',
-      vehicleId: data.vehicleId ?? null,
-      createdAt: data.createdAt,
-      updatedAt: data.updatedAt,
-    };
-  });
+  return snapshot.docs
+    .map((riderDoc) =>
+      mapRider(
+        riderDoc.id,
+        riderDoc.data() as Record<string, unknown>,
+      ),
+    )
+    .sort((a, b) =>
+      a.fullName.localeCompare(b.fullName),
+    );
 }
 
 export async function getRider(
   riderId: string,
 ): Promise<Rider | null> {
-  const riderRef = doc(
-    db,
-    'riders',
-    riderId,
+  const snapshot = await getDoc(
+    doc(db, 'riders', riderId),
   );
-
-  const snapshot =
-    await getDoc(riderRef);
 
   if (!snapshot.exists()) {
     return null;
   }
 
-  return {
-    id: snapshot.id,
-    ...snapshot.data(),
-  } as Rider;
+  return mapRider(
+    snapshot.id,
+    snapshot.data() as Record<string, unknown>,
+  );
 }

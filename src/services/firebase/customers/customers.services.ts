@@ -13,9 +13,20 @@ import {
 } from 'firebase/firestore';
 
 import app from '../firebase';
-import type { Customer, CustomerAddress } from './customers.types';
+import type { Customer, CustomerAddress, CustomerStatus, } from './customers.types';
+
+import {
+  getFunctions,
+  httpsCallable,
+} from "firebase/functions";
+
 
 const db = getFirestore(app);
+
+const functions = getFunctions(
+  app,
+  "us-central1",
+);
 
 export async function createCustomerProfile(
   uid: string,
@@ -42,96 +53,149 @@ export async function createCustomerProfile(
 export async function getCustomers(): Promise<Customer[]> {
   const customersRef = collection(
     db,
-    'customers',
+    "customers",
   );
 
-  const snapshot =
-    await getDocs(customersRef);
-
-  return snapshot.docs.map(
-    (customerDoc) => {
-      const data =
-        customerDoc.data();
-
-      return {
-        id: customerDoc.id,
-        fullName:
-          data.fullName ?? '',
-        phoneNumber:
-          data.phoneNumber ?? '',
-        status:
-          data.status ?? 'active',
-        createdAt:
-          data.createdAt,
-        updatedAt:
-          data.updatedAt,
-      };
-    },
+  const snapshot = await getDocs(
+    customersRef,
   );
+
+  return snapshot.docs.map((customerDoc) => {
+    const data = customerDoc.data();
+
+    return {
+      id: customerDoc.id,
+      fullName:
+        typeof data.fullName === "string"
+          ? data.fullName
+          : "",
+      email:
+        typeof data.email === "string"
+          ? data.email
+          : "",
+      phoneNumber:
+        typeof data.phoneNumber === "string"
+          ? data.phoneNumber
+          : "",
+      phoneCountryCode:
+        typeof data.phoneCountryCode === "string"
+          ? data.phoneCountryCode
+          : "",
+      phoneVerified:
+        data.phoneVerified === true,
+      onboardingCompleted:
+        data.onboardingCompleted === true,
+      status:
+        data.status === "inactive" ||
+        data.status === "suspended"
+          ? data.status
+          : "active",
+      defaultAddressId:
+        typeof data.defaultAddressId === "string"
+          ? data.defaultAddressId
+          : undefined,
+      createdAt: data.createdAt,
+      updatedAt: data.updatedAt,
+    };
+  });
 }
 
 export async function getCustomer(
   customerId: string,
 ): Promise<Customer | null> {
-  const customersRef = collection(
+  const customerRef = doc(
     db,
-    'customers',
+    "customers",
+    customerId,
   );
 
-  const snapshot =
-    await getDocs(customersRef);
+  const snapshot = await getDoc(
+    customerRef,
+  );
 
-
-  const matchingCustomer =
-    snapshot.docs.find(
-      (customerDoc) =>
-        customerDoc.id === customerId,
-    );
-
-  if (!matchingCustomer) {
+  if (!snapshot.exists()) {
     return null;
   }
 
-  const data =
-    matchingCustomer.data();
+  const data = snapshot.data();
 
   return {
-    id: matchingCustomer.id,
+    id: snapshot.id,
     fullName:
-      data.fullName ?? '',
+      typeof data.fullName === "string"
+        ? data.fullName
+        : "",
+    email:
+      typeof data.email === "string"
+        ? data.email
+        : "",
     phoneNumber:
-      data.phoneNumber ?? '',
+      typeof data.phoneNumber === "string"
+        ? data.phoneNumber
+        : "",
+    phoneCountryCode:
+      typeof data.phoneCountryCode === "string"
+        ? data.phoneCountryCode
+        : "",
+    phoneVerified:
+      data.phoneVerified === true,
+    onboardingCompleted:
+      data.onboardingCompleted === true,
     status:
-      data.status ?? 'active',
-    createdAt:
-      data.createdAt,
-    updatedAt:
-      data.updatedAt,
+      data.status === "inactive" ||
+      data.status === "suspended"
+        ? data.status
+        : "active",
+    defaultAddressId:
+      typeof data.defaultAddressId === "string"
+        ? data.defaultAddressId
+        : undefined,
+    createdAt: data.createdAt,
+    updatedAt: data.updatedAt,
   };
 }
 
 export async function updateCustomer(
   customerId: string,
   fullName: string,
-  phoneNumber: string,
-  status: string,
 ): Promise<void> {
+  if (!fullName.trim()) {
+    throw new Error(
+      "Customer name is required.",
+    );
+  }
+
   const customerRef = doc(
     db,
-    'customers',
+    "customers",
     customerId,
   );
 
-  await updateDoc(
-    customerRef,
+  await updateDoc(customerRef, {
+    fullName: fullName.trim(),
+    updatedAt: serverTimestamp(),
+  });
+}
+
+export async function updateCustomerStatus(
+  customerId: string,
+  status: CustomerStatus,
+): Promise<void> {
+  const callable = httpsCallable<
     {
-      fullName,
-      phoneNumber,
-      status,
-      updatedAt:
-        serverTimestamp(),
+      customerId: string;
+      status: CustomerStatus;
     },
+    {success: boolean}
+  >(
+    functions,
+    "updateCustomerStatusFunction",
   );
+
+  await callable({
+    customerId,
+    status,
+  });
 }
 
 export async function createCustomerAddress(
