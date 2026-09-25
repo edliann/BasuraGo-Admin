@@ -27,6 +27,8 @@ import WasteTypes from '../pages/WasteTypes/WasteTypes';
 import Staff from '../pages/Staff/Staff';
 import StaffDetails from '../pages/Staff/StaffDetails';
 
+import RiderApplication from '../pages/RiderApplication/RiderApplication';
+
 function AppRoutes() {
   return (
     <Routes>
@@ -43,6 +45,7 @@ function AppRoutes() {
           <Route path="/customers/:customerId" element={<CustomerDetails />} />
           <Route path="/riders" element={<Riders />} />
           <Route path="/riders/invite" element={<InviteRider />} />
+          <Route path="/riders/:riderId/application" element={<RiderApplication />} />
           <Route path="/riders/:riderId" element={<RiderDetails />} />
           <Route path="/vehicles" element={<Vehicles />} />
           <Route path="/vehicles/:vehicleId" element={<VehicleDetails />} />

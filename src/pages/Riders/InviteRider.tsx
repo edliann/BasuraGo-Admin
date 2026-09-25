@@ -1,4 +1,5 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
+import QRCode from 'qrcode';
 
 import { createRiderInvitation } from '../../services/firebase/riders/invitation.services';
 import {
@@ -13,13 +14,69 @@ export default function InviteRider() {
 
   const [loading, setLoading] = useState(false);
   const [copying, setCopying] = useState(false);
+  const [downloading, setDownloading] = useState(false);
+
   const [error, setError] = useState('');
+
+  const [qrCodeDataUrl, setQrCodeDataUrl] =
+    useState('');
 
   const [invitation, setInvitation] = useState<{
     invitationId: string;
     invitationToken: string;
     expiresAt: string;
   } | null>(null);
+
+  const invitationLink = invitation
+    ? createRiderInvitationLink(
+        invitation.invitationId,
+        invitation.invitationToken,
+      )
+    : '';
+
+  useEffect(() => {
+    if (!invitationLink) {
+      setQrCodeDataUrl('');
+      return;
+    }
+
+    let cancelled = false;
+
+    async function generateQrCode() {
+      try {
+        const dataUrl =
+          await QRCode.toDataURL(
+            invitationLink,
+            {
+              width: 512,
+              margin: 3,
+              errorCorrectionLevel: 'M',
+            },
+          );
+
+        if (!cancelled) {
+          setQrCodeDataUrl(dataUrl);
+        }
+      } catch (err) {
+        console.error(
+          'Failed to generate invitation QR code:',
+          err,
+        );
+
+        if (!cancelled) {
+          setError(
+            'Failed to generate the invitation QR code.',
+          );
+        }
+      }
+    }
+
+    generateQrCode();
+
+    return () => {
+      cancelled = true;
+    };
+  }, [invitationLink]);
 
   async function handleSubmit(
     event: React.FormEvent<HTMLFormElement>,
@@ -28,24 +85,30 @@ export default function InviteRider() {
 
     setError('');
     setInvitation(null);
+    setQrCodeDataUrl('');
 
     if (!email.trim()) {
-      setError('Please enter the rider email.');
+      setError(
+        'Please enter the rider email.',
+      );
       return;
     }
 
     if (!phoneNumber.trim()) {
-      setError('Please enter the rider phone number.');
+      setError(
+        'Please enter the rider phone number.',
+      );
       return;
     }
 
     try {
       setLoading(true);
 
-      const result = await createRiderInvitation({
-        email,
-        phoneNumber,
-      });
+      const result =
+        await createRiderInvitation({
+          email,
+          phoneNumber,
+        });
 
       setInvitation(result);
 
@@ -74,13 +137,11 @@ export default function InviteRider() {
 
     try {
       setCopying(true);
+      setError('');
 
-      const link = createRiderInvitationLink(
-        invitation.invitationId,
-        invitation.invitationToken,
+      await navigator.clipboard.writeText(
+        invitationLink,
       );
-
-      await navigator.clipboard.writeText(link);
     } catch (err) {
       console.error(
         'Failed to copy invitation link:',
@@ -95,12 +156,39 @@ export default function InviteRider() {
     }
   }
 
-  const invitationLink = invitation
-    ? createRiderInvitationLink(
-        invitation.invitationId,
-        invitation.invitationToken,
-      )
-    : '';
+  function handleDownloadQrCode() {
+    if (!qrCodeDataUrl || !invitation) {
+      return;
+    }
+
+    try {
+      setDownloading(true);
+      setError('');
+
+      const link =
+        document.createElement('a');
+
+      link.href = qrCodeDataUrl;
+
+      link.download =
+        `basurago-rider-invitation-${invitation.invitationId}.png`;
+
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+    } catch (err) {
+      console.error(
+        'Failed to download invitation QR code:',
+        err,
+      );
+
+      setError(
+        'Unable to download the QR code.',
+      );
+    } finally {
+      setDownloading(false);
+    }
+  }
 
   return (
     <main className="invite-rider-page">
@@ -178,6 +266,46 @@ export default function InviteRider() {
               successfully.
             </p>
 
+            <div className="invitation-qr-section">
+              <h3>
+                Rider Invitation QR Code
+              </h3>
+
+              <p>
+                Send this QR code to the intended
+                rider. They can scan it to open
+                the Rider invitation.
+              </p>
+
+              <div className="invitation-qr-wrapper">
+                {qrCodeDataUrl ? (
+                  <img
+                    src={qrCodeDataUrl}
+                    alt="BasuraGo Rider invitation QR code"
+                    className="invitation-qr-code"
+                  />
+                ) : (
+                  <div className="invitation-qr-loading">
+                    Generating QR code...
+                  </div>
+                )}
+              </div>
+
+              <button
+                type="button"
+                className="download-qr-button"
+                onClick={handleDownloadQrCode}
+                disabled={
+                  !qrCodeDataUrl ||
+                  downloading
+                }
+              >
+                {downloading
+                  ? 'Downloading...'
+                  : 'Download QR Code'}
+              </button>
+            </div>
+
             <div className="invitation-detail">
               <span>Invitation ID</span>
 
@@ -197,7 +325,9 @@ export default function InviteRider() {
             </div>
 
             <div className="invitation-link-section">
-              <span>Invitation Link</span>
+              <span>
+                Invitation Link
+              </span>
 
               <div className="invitation-link-row">
                 <input
@@ -208,7 +338,9 @@ export default function InviteRider() {
 
                 <button
                   type="button"
-                  onClick={handleCopyInvitationLink}
+                  onClick={
+                    handleCopyInvitationLink
+                  }
                   disabled={copying}
                 >
                   {copying
@@ -219,9 +351,10 @@ export default function InviteRider() {
             </div>
 
             <p className="invitation-note">
-              Share this invitation link only with
-              the intended rider. The link contains a
-              private invitation token.
+              The QR code and invitation link
+              contain a private invitation token.
+              Share them only with the intended
+              rider.
             </p>
           </div>
         )}

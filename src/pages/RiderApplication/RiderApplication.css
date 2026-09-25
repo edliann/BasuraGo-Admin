@@ -1,0 +1,264 @@
+.rider-application-page {
+  padding: 32px;
+}
+
+.rider-application-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 24px;
+  margin-bottom: 28px;
+}
+
+.rider-application-header h1 {
+  margin: 12px 0 8px;
+}
+
+.rider-application-header p {
+  margin: 0;
+  opacity: 0.75;
+}
+
+.rider-application-back {
+  text-decoration: none;
+  font-weight: 600;
+}
+
+.rider-application-status {
+  padding: 8px 14px;
+  border-radius: 999px;
+  font-weight: 700;
+  text-transform: capitalize;
+}
+
+.status-submitted,
+.status-under_review {
+  background: #fff3cd;
+}
+
+.status-approved {
+  background: #d1e7dd;
+}
+
+.status-needs_correction {
+  background: #cff4fc;
+}
+
+.status-rejected {
+  background: #f8d7da;
+}
+
+.rider-application-grid {
+  display: grid;
+  grid-template-columns:
+    repeat(2, minmax(0, 1fr));
+  gap: 20px;
+}
+
+.rider-application-card {
+  padding: 24px;
+  border: 1px solid #ddd;
+  border-radius: 12px;
+  background: #fff;
+  margin-bottom: 20px;
+}
+
+.rider-application-card h2 {
+  margin-top: 0;
+}
+
+.rider-application-check,
+.rider-application-info {
+  display: flex;
+  justify-content: space-between;
+  gap: 20px;
+  padding: 12px 0;
+  border-bottom: 1px solid #eee;
+}
+
+.rider-application-check:last-child,
+.rider-application-info:last-child {
+  border-bottom: 0;
+}
+
+.completed {
+  color: #198754;
+}
+
+.incomplete {
+  color: #dc3545;
+}
+
+.monospace {
+  font-family: monospace;
+  word-break: break-all;
+}
+
+.rider-application-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-bottom: 24px;
+}
+
+.rider-application-actions button,
+.rider-application-review-section button {
+  padding: 10px 16px;
+  border: 0;
+  border-radius: 8px;
+  cursor: pointer;
+  font-weight: 600;
+}
+
+.rider-application-actions button.approve {
+  background: #198754;
+  color: white;
+}
+
+.rider-application-review-section {
+  margin-top: 24px;
+}
+
+.rider-application-review-section label {
+  display: block;
+  margin-bottom: 8px;
+  font-weight: 600;
+}
+
+.rider-application-review-section textarea {
+  width: 100%;
+  box-sizing: border-box;
+  resize: vertical;
+  padding: 12px;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  margin-bottom: 10px;
+  font: inherit;
+}
+
+.rider-application-review-section button.reject {
+  background: #dc3545;
+  color: white;
+}
+
+.rider-application-state {
+  padding: 40px;
+  text-align: center;
+}
+
+.rider-application-state.error,
+.rider-application-action-error {
+  color: #dc3545;
+}
+
+.rider-application-action-error {
+  margin-top: 16px;
+  font-weight: 600;
+}
+
+.rider-confirmation-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+  background: rgba(0, 0, 0, 0.45);
+}
+
+.rider-confirmation-modal {
+  width: min(440px, 100%);
+  padding: 28px;
+  border-radius: 16px;
+  background: #fff;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.2);
+}
+
+.rider-confirmation-icon {
+  width: 42px;
+  height: 42px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 18px;
+  border-radius: 50%;
+  background: #fff3cd;
+  color: #856404;
+  font-size: 22px;
+  font-weight: 800;
+}
+
+.rider-confirmation-modal h2 {
+  margin: 0 0 10px;
+  font-size: 22px;
+}
+
+.rider-confirmation-modal p {
+  margin: 0;
+  line-height: 1.6;
+  color: #555;
+}
+
+.rider-confirmation-warning {
+  margin-top: 18px;
+  padding: 14px;
+  border-radius: 8px;
+  background: #f8f9fa;
+  line-height: 1.5;
+  font-size: 14px;
+}
+
+.rider-confirmation-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  margin-top: 24px;
+}
+
+.rider-confirmation-actions button {
+  min-width: 110px;
+  padding: 10px 16px;
+  border-radius: 8px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.rider-confirmation-cancel {
+  border: 1px solid #ddd;
+  background: #fff;
+}
+
+.rider-confirmation-confirm {
+  border: 0;
+  background: #6c757d;
+  color: #fff;
+}
+
+.rider-confirmation-confirm.success {
+  background: #198754;
+}
+
+.rider-confirmation-confirm.danger {
+  background: #dc3545;
+}
+
+.rider-confirmation-actions button:disabled {
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+
+@media (max-width: 800px) {
+  .rider-application-page {
+    padding: 20px;
+  }
+
+  .rider-application-header {
+    flex-direction: column;
+  }
+
+  .rider-application-grid {
+    grid-template-columns: 1fr;
+  }
+}
+

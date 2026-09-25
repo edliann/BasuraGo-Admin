@@ -204,6 +204,12 @@ function RiderDetails() {
             Rider information and
             account details.
           </p>
+          <Link
+            to={`/riders/${rider.id}/application`}
+            className="rider-details-action"
+          >
+            Review Application
+          </Link>
         </div>
       </div>
 
